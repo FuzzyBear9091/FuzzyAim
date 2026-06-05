@@ -5,3 +5,5 @@
 !/gui_script.png
 !/gui_capture.png
 !/.gitignore
+
+.vercel
