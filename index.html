@@ -51,7 +51,7 @@
       box-shadow: 0 0 20px var(--primary), 0 0 60px var(--primary);
       transform: translate(-50%, -50%);
     }
-    #cursor.hover { background: var(--primary); box-shadow: 0 0 30px var(--primary), 0 0 80px var(--primary); }
+    #cursor.hover { background: var(--secondary); box-shadow: 0 0 30px var(--secondary), 0 0 80px var(--secondary); }
     #cursor-cross {
       position: fixed; pointer-events: none; z-index: 99998;
       width: 52px; height: 52px;
@@ -61,15 +61,15 @@
     #cursor-cross.show { opacity: 1; }
     #cursor-cross .ring {
       position: absolute; inset: 4px; border-radius: 50%;
-      border: 1px solid rgba(0,255,42,0.5);
-      box-shadow: 0 0 12px rgba(0,255,42,0.2), inset 0 0 12px rgba(0,255,42,0.1);
+      border: 1px solid rgba(0,255,255,0.5);
+      box-shadow: 0 0 12px rgba(0,255,255,0.2), inset 0 0 12px rgba(0,255,255,0.1);
       animation: cross-spin 6s linear infinite;
     }
-    #cursor-cross .ring-2 { border-color: rgba(0,255,255,0.3); box-shadow: 0 0 12px rgba(0,255,255,0.15), inset 0 0 12px rgba(0,255,255,0.08); animation-duration: 8s; animation-direction: reverse; }
-    #cursor-cross .arm { position: absolute; background: linear-gradient(90deg, transparent, rgba(0,255,42,0.7), transparent); }
+    #cursor-cross .ring-2 { border-color: rgba(0,255,42,0.3); box-shadow: 0 0 12px rgba(0,255,42,0.15), inset 0 0 12px rgba(0,255,42,0.08); animation-duration: 8s; animation-direction: reverse; }
+    #cursor-cross .arm { position: absolute; background: linear-gradient(90deg, transparent, rgba(0,255,255,0.7), transparent); }
     #cursor-cross .arm-h { width: 100%; height: 1px; top: 50%; transform: translateY(-50%); }
-    #cursor-cross .arm-v { height: 100%; width: 1px; left: 50%; transform: translateX(-50%); background: linear-gradient(180deg, transparent, rgba(0,255,42,0.7), transparent); }
-    #cursor-cross .dot-ring { position: absolute; inset: 20px; border-radius: 50%; border: 1px solid rgba(0,255,255,0.2); animation: cross-pulse 2s ease-in-out infinite; }
+    #cursor-cross .arm-v { height: 100%; width: 1px; left: 50%; transform: translateX(-50%); background: linear-gradient(180deg, transparent, rgba(0,255,255,0.7), transparent); }
+    #cursor-cross .dot-ring { position: absolute; inset: 20px; border-radius: 50%; border: 1px solid rgba(0,255,42,0.2); animation: cross-pulse 2s ease-in-out infinite; }
     @keyframes cross-spin { 100% { transform: rotate(360deg); } }
     @keyframes cross-pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.15); opacity: 1; } }
     #cursor-trail {
