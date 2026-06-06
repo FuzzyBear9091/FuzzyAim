@@ -1113,7 +1113,7 @@
         <p><strong>15. Governing Law</strong><br>These terms are governed by applicable law. Any disputes shall be resolved through binding arbitration. If any provision is found unenforceable, the remaining provisions remain in full effect.</p>
         <p><strong>16. Contact</strong><br>For questions, contact us through our Discord server.</p>
       </div>
-      <a href="#" onclick="showMain(); window.scrollTo(0,0); return false;" class="legal-back">← Back to Main Page</a>
+      <a href="javascript:void(0)" onclick="showMain(); window.scrollTo(0,0); return false;" class="legal-back">← Back to Main Page</a>
     </div>
   </section>
 
@@ -1130,7 +1130,7 @@
         <p><strong>5. Policy Updates</strong><br>We may update this policy at any time. Continued use after changes constitutes acceptance.</p>
         <p><strong>6. Contact</strong><br>For privacy concerns, reach us through our Discord server.</p>
       </div>
-      <a href="#" onclick="showMain(); window.scrollTo(0,0); return false;" class="legal-back">← Back to Main Page</a>
+      <a href="javascript:void(0)" onclick="showMain(); window.scrollTo(0,0); return false;" class="legal-back">← Back to Main Page</a>
     </div>
   </section>
 
@@ -1159,8 +1159,8 @@
         <a href="#requirements">Requirements</a>
         <a href="#faq">FAQ</a>
         <a href="javascript:void(0)" id="discordFooter">Discord</a>
-        <a onclick="showSection('terms'); window.scrollTo(0,0); return false;">Terms of Service</a>
-        <a onclick="showSection('privacy'); window.scrollTo(0,0); return false;">Privacy Policy</a>
+        <a onclick="showSection('terms'); return false;">Terms of Service</a>
+        <a onclick="showSection('privacy'); return false;">Privacy Policy</a>
       </div>
       <div class="footer-copy">&copy; 2026 FuzzyAim. All rights reserved. | FuzzyAim is not affiliated with any game publisher.</div>
     </div>
@@ -1381,7 +1381,9 @@
     });
     document.getElementById('navbar').style.display = 'none';
     document.getElementById(id).style.display = '';
-    window.scrollTo(0, 0);
+    setTimeout(() => {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   }
   function showMain() {
     document.querySelectorAll('section').forEach(s => { s.style.display = ''; });
