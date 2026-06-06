@@ -7,1144 +7,1122 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --font-display: 'Orbitron', sans-serif;
       --font-body: 'Rajdhani', sans-serif;
       --bg: #09090b;
+      --bg2: #0c0c12;
       --fg: #e6e6e6;
       --primary: #00ff2a;
-      --secondary: #ff8c00;
+      --secondary: #00ffff;
+      --orange: #ff6a00;
       --muted: #242429;
       --muted-fg: #94949e;
-      --accent: #00ffff;
-      --border: #303036;
-      --card-bg: rgba(255,255,255,0.03);
+      --border: #1a1a24;
+      --card-bg: transparent;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .05em; }
     body {
       background: var(--bg);
       color: var(--fg);
       font-family: var(--font-body);
-      line-height: 1.6;
       overflow-x: hidden;
+      cursor: none;
     }
     ::selection { background: var(--primary); color: var(--bg); }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; }
 
-    #noise {
+    /* ─── CUSTOM CURSOR ─── */
+    #cursor {
+      position: fixed; pointer-events: none; z-index: 99999;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 20px var(--primary), 0 0 60px var(--primary);
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+    #cursor.hover { width: 24px; height: 24px; background: var(--secondary); box-shadow: 0 0 30px var(--secondary); }
+    #cursor-trail {
+      position: fixed; pointer-events: none; z-index: 99998;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(0,255,42,0.3);
+      transform: translate(-50%, -50%);
+    }
+
+    /* ─── THREE.JS BG ─── */
+    #three-bg {
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image: url(https://grainy-gradients.vercel.app/noise.svg);
-      opacity: 0.4;
     }
-    #glow {
-      position: fixed; top: -30%; left: 50%; transform: translateX(-50%);
-      width: 800px; height: 800px; z-index: 0; pointer-events: none;
-      background: radial-gradient(ellipse at center, rgba(0,255,42,0.12), transparent 60%);
-    }
+    #three-bg canvas { display: block; width: 100%; height: 100%; }
+
+    /* ─── SCANLINE ─── */
     #scanline {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5) 51%);
-      background-size: 100% 4px;
-      animation: scanline-move 10s linear infinite;
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
     }
-    @keyframes scanline-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
 
-    .text-glow { text-shadow: 0 0 10px currentColor; }
+    /* ─── SIDE DECORATIONS ─── */
+    .hero-side {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; align-items: center;
+      z-index: 3; pointer-events: none;
+    }
+    .hero-side.left { left: 1.5rem; }
+    .hero-side.right { right: 1.5rem; }
+    .hero-side .side-text {
+      font-family: var(--font-display); font-size: 3.5rem; font-weight: 900;
+      line-height: 0.9; letter-spacing: 0.15em;
+      text-transform: uppercase; writing-mode: vertical-rl;
+    }
+    .hero-side.left .side-text { color: rgba(255,255,255,0.5); text-shadow: 0 0 40px rgba(255,255,255,0.12); }
+    .hero-side.right .side-text { color: rgba(0,255,255,0.12); text-shadow: 0 0 30px rgba(0,255,255,0.05); }
+    .hero-side .side-line {
+      width: 1px; height: 60px; margin: 0.8rem 0;
+    }
+    .hero-side.left .side-line { background: linear-gradient(to bottom, rgba(0,255,42,0.2), transparent); }
+    .hero-side.right .side-line { background: linear-gradient(to bottom, rgba(0,255,255,0.2), transparent); }
+    .hero-side .side-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      box-shadow: 0 0 8px currentColor;
+    }
+    .hero-side.left .side-dot { color: var(--primary); background: var(--primary); }
+    .hero-side.right .side-dot { color: var(--secondary); background: var(--secondary); }
 
+    /* ─── CROSSHAIR DECORATION ─── */
+    .hero-crosshair {
+      position: fixed; z-index: 3; pointer-events: none;
+      opacity: 0.1;
+    }
+    .hero-crosshair svg { width: 100px; height: 100px; }
+    .hero-crosshair.tl { top: 8%; left: 5%; }
+    .hero-crosshair.br { bottom: 8%; right: 5%; transform: rotate(180deg); }
+    .hero-crosshair .ring { animation: spin 20s linear infinite; transform-origin: center; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* ─── NAVBAR ─── */
     .navbar {
-      background: rgba(9,9,11,0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 0.75rem 0;
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 1000;
-      transition: box-shadow 0.3s;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(9,9,11,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding: 0.8rem 0;
     }
-    .navbar.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .nav-inner {
+      max-width: 1300px; margin: 0 auto; padding: 0 2rem;
+      display: flex; justify-content: space-between; align-items: center;
     }
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      text-decoration: none;
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--fg);
-      font-family: var(--font-display);
+      display: flex; align-items: center; gap: 0.75rem;
+      text-decoration: none; font-family: var(--font-display);
     }
-    .logo-crosshair {
-      animation: target-pulse 2s ease-in-out infinite;
+    .logo-icon {
+      width: 40px; height: 40px; position: relative;
     }
-    @keyframes target-pulse {
-      0% { transform: scale(1); opacity: 0.8; }
-      50% { transform: scale(1.12); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.8; }
-    }
-    .logo-wrap { display: inline-flex; }
-    .logo-fuzzy {
-      font-size: 1.5rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: var(--fg);
-      letter-spacing: -0.02em;
-    }
-    .logo-aim {
-      font-size: 1.5rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.02em;
-    }
-    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
-    .nav-links a {
-      color: var(--muted-fg);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-      position: relative;
-      font-family: var(--font-body);
-      letter-spacing: 0.5px;
-    }
-    .nav-links a::after {
-      content: ''; position: absolute; bottom: -4px; left: 0;
-      width: 0; height: 1px;
-      background: var(--primary);
-      transition: width 0.3s;
-    }
-    .nav-links a:hover { color: var(--fg); }
-    .nav-links a:hover::after { width: 100%; }
-    .nav-btn {
-      background: var(--primary);
-      color: var(--bg) !important;
-      padding: 0.5rem 1.25rem;
-      border-radius: 4px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    .nav-btn::after { display: none !important; }
-    .nav-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,255,42,0.3); }
-
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      cursor: pointer;
-      gap: 5px;
-      padding: 4px;
-    }
-    .hamburger span {
-      width: 24px; height: 2px;
-      background: var(--fg);
-      border-radius: 2px;
-      transition: 0.3s;
-    }
-    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-    .hamburger.active span:nth-child(2) { opacity: 0; }
-    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(9,9,11,0.96);
-      backdrop-filter: blur(20px);
-      z-index: 999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .mobile-menu.open { display: flex; opacity: 1; }
-    .mobile-menu a { color: var(--fg); text-decoration: none; font-size: 1.3rem; font-weight: 500; }
-    .mobile-menu .nav-btn { font-size: 1.1rem; padding: 0.75rem 2rem; }
-
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 6rem 1.5rem 4rem;
-      position: relative;
-      z-index: 1;
-    }
-    .hero-content { max-width: 1200px; position: relative; z-index: 2; display: flex; align-items: center; gap: 4rem; text-align: left; }
-    .hero-left { flex: 1; }
-    .hero-right { flex: 1; display: flex; justify-content: center; }
-    .hero-right img { max-width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--border); }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(0,255,42,0.08);
-      border: 1px solid rgba(0,255,42,0.2);
-      padding: 0.3rem 0.9rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      color: var(--primary);
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.5px;
-      font-family: var(--font-display);
-    }
-    .hero-badge .dot {
-      width: 6px; height: 6px;
-      background: var(--primary);
-      border-radius: 50%;
-      animation: pulse-dot 2s infinite;
-    }
+    .logo-icon svg { width: 100%; height: 100%; }
+    .logo-icon .outer-ring { animation: spin 8s linear infinite; transform-origin: center; }
+    .logo-icon .center-dot { animation: pulse-dot 2s ease-in-out infinite; }
     @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+    .logo-text {
+      font-size: 1.4rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .logo-text span { color: var(--fg); -webkit-text-fill-color: var(--fg); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+    .nav-links a {
+      color: var(--muted-fg); text-decoration: none;
+      font-weight: 500; font-size: 0.9rem;
+      position: relative; padding: 0.25rem 0;
+      transition: color 0.3s;
+      letter-spacing: 0.5px;
+    }
+    .nav-links a::before {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.4s ease; border-radius: 2px;
+    }
+    .nav-links a:hover { color: var(--fg); }
+    .nav-links a:hover::before { width: 100%; }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--bg) !important; padding: 0.5rem 1.5rem !important;
+      border-radius: 6px; font-weight: 700 !important;
+      letter-spacing: 0.5px;
+    }
+    .nav-cta::before { display: none !important; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,42,0.3); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      position: relative; z-index: 2; padding: 6rem 2rem 4rem;
+    }
+    .hero-inner {
+      max-width: 1300px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+      align-items: center; width: 100%;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,255,42,0.06);
+      border: 1px solid rgba(0,255,42,0.15);
+      padding: 0.35rem 1rem; border-radius: 100px;
+      font-size: 0.75rem; color: var(--primary);
+      font-weight: 600; margin-bottom: 1.5rem;
+      font-family: var(--font-display); letter-spacing: 0.5px;
+    }
+    .hero-tag .live-dot {
+      width: 7px; height: 7px; background: var(--primary);
+      border-radius: 50%; animation: live-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes live-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,42,0.5); }
+      50% { box-shadow: 0 0 0 6px rgba(0,255,42,0); }
     }
     .hero h1 {
-      font-size: clamp(2.2rem, 6vw, 4.2rem);
-      font-weight: 900;
-      line-height: 1.1;
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+      font-weight: 900; line-height: 1.05;
       margin-bottom: 1.2rem;
     }
     .hero h1 .gradient {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero h1 .outline {
       -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 1.5px var(--fg);
     }
     .hero p {
-      font-size: clamp(1rem, 2vw, 1.2rem);
-      color: var(--muted-fg);
-      max-width: 600px;
-      margin: 0 0 2rem;
+      font-size: clamp(1rem, 1.5vw, 1.15rem);
+      color: var(--muted-fg); max-width: 540px;
+      line-height: 1.7; margin-bottom: 2rem;
     }
-    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: var(--bg);
-      padding: 0.8rem 2rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.3s;
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: linear-gradient(135deg, var(--primary), #00cc22);
+      color: var(--bg); padding: 0.85rem 2rem;
+      border: none; border-radius: 8px;
       font-family: var(--font-display);
-      letter-spacing: .1em;
+      font-size: 0.85rem; font-weight: 700;
+      text-decoration: none; cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+      position: relative; overflow: hidden;
     }
+    .btn-primary::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+      transform: translateX(-100%); transition: transform 0.5s ease;
+    }
+    .btn-primary:hover::after { transform: translateX(100%); }
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0,255,42,0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,255,42,0.35);
     }
     .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.6rem;
       background: transparent;
-      color: var(--fg);
-      padding: 0.8rem 2rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.3s;
-      font-family: var(--font-display);
-      letter-spacing: .1em;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--fg); padding: 0.85rem 2rem;
+      border-radius: 8px; font-family: var(--font-display);
+      font-size: 0.85rem; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
     }
     .btn-secondary:hover {
       border-color: var(--primary);
       background: rgba(0,255,42,0.05);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,255,42,0.1);
     }
 
-    .hero-stats { display: flex; gap: 2.5rem; margin-top: 3rem; flex-wrap: wrap; }
-    .hero-stat { text-align: center; }
-    .hero-stat .num {
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-family: var(--font-display);
+    /* ─── HERO RIGHT (CROSSHAIR CARD) ─── */
+    .hero-visual {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
     }
-    .hero-stat .label {
-      font-size: 0.75rem;
-      color: var(--muted-fg);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: .1em;
+    .hero-card-3d {
+      width: 100%; max-width: 480px; aspect-ratio: 1;
+      background: radial-gradient(ellipse, rgba(0,255,42,0.06), transparent 70%);
+      border: 1px solid rgba(0,255,42,0.08);
+      border-radius: 50%; position: relative;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease;
+    }
+    .hero-card-3d .card-content {
+      position: absolute; inset: 0; z-index: 3;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem; text-align: center;
+      pointer-events: none;
+    }
+    .hero-card-3d .card-badge {
+      font-family: var(--font-display);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: var(--primary); margin-bottom: 0.75rem;
+      text-transform: uppercase; opacity: 0.8;
+    }
+    .hero-card-3d .card-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-card-3d .card-sub {
+      color: var(--muted-fg); font-size: 0.75rem; margin-top: 0.5rem;
+    }
+    .hero-card-3d .card-stats {
+      display: flex; gap: 1.5rem; margin-top: 1rem;
+    }
+    .hero-card-3d .card-stat { text-align: center; }
+    .hero-card-3d .card-stat-num {
+      font-family: var(--font-display);
+      font-size: 1.2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-card-3d .card-stat-label {
+      font-size: 0.55rem; color: var(--muted-fg);
+      text-transform: uppercase; letter-spacing: 1px;
       margin-top: 2px;
     }
-    .scroll-indicator {
+    /* Crosshair rings */
+    .hero-card-3d .ch-ring {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(0,255,42,0.08);
+      pointer-events: none;
+    }
+    .hero-card-3d .ch-ring-1 { width: 85%; height: 85%; animation: ring-rotate 20s linear infinite; }
+    .hero-card-3d .ch-ring-2 { width: 60%; height: 60%; border-color: rgba(0,255,255,0.05); animation: ring-rotate 15s linear infinite reverse; }
+    .hero-card-3d .ch-ring-3 { width: 35%; height: 35%; border-color: rgba(0,255,42,0.06); }
+    .hero-card-3d .ch-ring-4 { width: 12%; height: 12%; background: rgba(0,255,42,0.04); border: none; }
+    /* Crosshair lines */
+    .hero-card-3d .ch-line {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero-card-3d .ch-line-h {
+      width: 92%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,255,42,0.06), rgba(0,255,255,0.06), transparent);
+    }
+    .hero-card-3d .ch-line-v {
+      width: 1px; height: 92%;
+      background: linear-gradient(180deg, transparent, rgba(0,255,42,0.06), rgba(0,255,255,0.06), transparent);
+    }
+    /* Corner ticks */
+    .hero-card-3d .ch-tick {
+      position: absolute; width: 12px; height: 12px;
+      border-color: rgba(0,255,42,0.1);
+      pointer-events: none;
+    }
+    .hero-card-3d .ch-tick-tl { top: 18%; left: 18%; border-top: 1px solid; border-left: 1px solid; }
+    .hero-card-3d .ch-tick-tr { top: 18%; right: 18%; border-top: 1px solid; border-right: 1px solid; }
+    .hero-card-3d .ch-tick-bl { bottom: 18%; left: 18%; border-bottom: 1px solid; border-left: 1px solid; }
+    .hero-card-3d .ch-tick-br { bottom: 18%; right: 18%; border-bottom: 1px solid; border-right: 1px solid; }
+    @keyframes ring-rotate {
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .hero-scroll {
       position: absolute; bottom: 2rem; left: 50%;
       transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-      color: var(--muted-fg); font-size: 0.75rem;
-      animation: float 2s ease-in-out infinite;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.5rem; color: var(--muted-fg);
+      font-size: 0.65rem; letter-spacing: 2px;
+      text-transform: uppercase; font-family: var(--font-display);
+      animation: float-up 2s ease-in-out infinite;
     }
-    .scroll-indicator .arrow {
-      width: 20px; height: 20px;
-      border-right: 2px solid var(--muted-fg); border-bottom: 2px solid var(--muted-fg);
-      transform: rotate(45deg);
+    .hero-scroll .line {
+      width: 1px; height: 30px;
+      background: linear-gradient(to bottom, var(--muted-fg), transparent);
     }
-    @keyframes float {
+    @keyframes float-up {
       0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(8px); }
+      50% { transform: translateX(-50%) translateY(-8px); }
     }
 
-    section { position: relative; z-index: 1; }
-    .section-container { max-width: 1200px; margin: 0 auto; padding: 5rem 1.5rem; }
-    .section-label {
-      display: inline-block;
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 2px; color: var(--primary); margin-bottom: 0.75rem;
+    /* ─── GLOW BORDER CARDS ─── */
+    .glow-card {
+      background: transparent;
+      border-radius: 16px; padding: 2.5rem 2rem;
+      position: relative; overflow: hidden;
+      transition: all 0.4s ease;
+    }
+    .glow-card::before {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(0,255,42,0.06), rgba(0,255,255,0.04), transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .glow-card::after {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 16px;
+      background: radial-gradient(800px circle at var(--mx, 50%) var(--my, 50%), rgba(0,255,42,0.04), transparent 50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .glow-card:hover::after { opacity: 1; }
+    .glow-card:hover {
+      transform: translateY(-6px);
+    }
+
+    /* ─── SECTIONS ─── */
+    section { position: relative; z-index: 2; }
+    .section-container { max-width: 1300px; margin: 0 auto; padding: 6rem 2rem; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
       font-family: var(--font-display);
+      font-size: 0.65rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 3px;
+      color: var(--primary); margin-bottom: 1rem;
     }
-    .section-title { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 1rem; }
-    .section-sub { color: var(--muted-fg); max-width: 600px; margin-bottom: 3rem; font-size: 1rem; }
+    .section-tag .line {
+      width: 30px; height: 1px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 900; line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      color: var(--muted-fg); max-width: 600px;
+      font-size: 1rem; line-height: 1.7;
+    }
 
-    #features { background: linear-gradient(180deg, var(--bg) 0%, rgba(255,255,255,0.02) 100%); }
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
-    .feature-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2rem;
-      transition: all 0.3s;
+    /* ─── GAMES GRID ─── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem; margin-top: 3rem;
     }
-    .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+    .game-tile {
+      aspect-ratio: 1; border-radius: 16px;
+      background: transparent;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.75rem; padding: 1.5rem;
+      transition: all 0.4s ease; position: relative;
+      overflow: hidden; cursor: pointer;
+    }
+    .game-tile::before {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,255,42,0.05), transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .game-tile .game-icon { font-size: 2.5rem; opacity: 0.4; transition: opacity 0.3s; }
+    .game-tile .game-name {
+      font-family: var(--font-display);
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--muted-fg); text-align: center;
+    }
+    .game-tile .game-status {
+      position: absolute; top: 12px; right: 12px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--primary); box-shadow: 0 0 8px rgba(0,255,42,0.4);
+    }
+    .game-tile:hover {
+      border-color: rgba(0,255,42,0.2);
+      transform: translateY(-4px);
+      background: rgba(0,255,42,0.03);
+    }
+    .game-tile:hover .game-icon { opacity: 0.8; }
+
+    /* ─── FEATURES ─── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem; margin-top: 3rem;
+    }
+    .feature-card {
+      padding: 2rem; position: relative;
+    }
     .feature-icon {
       width: 48px; height: 48px;
-      background: rgba(0,255,42,0.08);
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      background: rgba(0,255,42,0.06);
+      border: 1px solid rgba(0,255,42,0.1);
+      border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       margin-bottom: 1.25rem; color: var(--primary);
-    }
-    .feature-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.6rem; }
-    .feature-card p { color: var(--muted-fg); font-size: 0.9rem; line-height: 1.6; }
-
-    #showcase { background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, var(--bg) 100%); }
-    .showcase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
-    .showcase-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2rem; text-align: center;
       transition: all 0.3s;
     }
-    .showcase-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-    .showcase-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
-    .showcase-card p { color: var(--muted-fg); font-size: 0.9rem; }
-    .showcase-tag {
-      display: inline-block;
-      background: rgba(0,255,42,0.08);
-      color: var(--primary);
-      padding: 0.2rem 0.7rem;
-      border-radius: 4px;
-      font-size: 0.7rem; font-weight: 600;
-      margin-top: 1rem;
+    .glow-card:hover .feature-icon {
+      background: rgba(0,255,42,0.1);
+      border-color: rgba(0,255,42,0.2);
+    }
+    .feature-card h3 {
       font-family: var(--font-display);
-      letter-spacing: 0.5px;
+      font-size: 1rem; font-weight: 700;
+      margin-bottom: 0.5rem; letter-spacing: 0.5px;
+    }
+    .feature-card p {
+      color: var(--muted-fg); font-size: 0.9rem;
+      line-height: 1.7;
     }
 
-    #how-it-works { background: linear-gradient(180deg, var(--bg) 0%, rgba(255,255,255,0.02) 100%); }
-    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-    .step-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2rem; text-align: center;
-      transition: all 0.3s;
+    /* ─── STATS BAR ─── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      border-radius: 16px; overflow: hidden;
+      margin-top: 3rem;
     }
-    .step-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-    .step-number {
-      width: 40px; height: 40px;
-      background: var(--primary);
-      border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1rem;
-      font-weight: 800; font-size: 1.1rem; color: var(--bg);
-      font-family: var(--font-display);
-    }
-    .step-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .step-card p { color: var(--muted-fg); font-size: 0.85rem; line-height: 1.6; }
-
-    #guis { background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, var(--bg) 100%); }
-    .gui-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .gui-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2rem; text-align: center;
-      transition: all 0.3s;
-    }
-    .gui-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-    .gui-card .mockup {
-      width: 100%; height: 200px;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 1.25rem;
-      display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-    .gui-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .gui-card p { color: var(--muted-fg); font-size: 0.85rem; line-height: 1.6; }
-    .gui-features { list-style: none; margin-top: 1rem; text-align: left; }
-    .gui-features li {
-      padding: 0.3rem 0; font-size: 0.82rem; color: var(--muted-fg);
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .gui-features li::before { content: '>'; color: var(--primary); font-weight: 700; }
-
-    #safety { background: linear-gradient(180deg, var(--bg) 0%, rgba(255,255,255,0.02) 100%); }
-    .safety-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
-    .safety-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
+    .stat-item {
+      background: transparent;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       padding: 2rem;
-      transition: all 0.3s;
+      text-align: center;
+      position: relative;
     }
-    .safety-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-    .safety-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-    .safety-card h3 .check { color: var(--primary); }
-    .safety-card p { color: var(--muted-fg); font-size: 0.85rem; line-height: 1.6; }
+    .stat-item::before {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 0;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,255,42,0.04), transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .stat-item .num {
+      font-family: var(--font-display);
+      font-size: 2.2rem; font-weight: 900;
+      color: var(--primary);
+    }
+    .stat-item .label {
+      font-size: 0.75rem; color: var(--muted-fg);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-top: 4px; font-weight: 500;
+    }
 
-    #pricing { background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, var(--bg) 100%); }
-    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: start; }
+    /* ─── PRICING ─── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem; align-items: start;
+    }
     .pricing-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2.5rem 2rem; text-align: center;
-      transition: all 0.3s; position: relative;
+      padding: 3rem 2rem; text-align: center;
     }
     .pricing-card.featured {
-      border-color: var(--primary);
-      box-shadow: 0 0 15px rgba(0,255,42,0.15);
+      background: rgba(0,255,42,0.02);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transform: scale(1.02);
     }
-    .pricing-card.featured .popular {
-      position: absolute; top: -12px; left: 50%;
-      transform: translateX(-50%);
-      background: var(--secondary);
-      color: var(--bg);
-      padding: 0.3rem 1.2rem;
-      border-radius: 4px;
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    .pricing-card.featured::before {
+      background: linear-gradient(135deg, rgba(0,255,42,0.15), rgba(0,255,255,0.1), rgba(0,255,42,0.05)) !important;
+    }
+    .pricing-card.featured::before {
+      opacity: 1 !important;
+    }
+    .pricing-name {
       font-family: var(--font-display);
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted-fg); margin-bottom: 0.75rem;
     }
-    .pricing-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-    .pricing-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .pricing-price { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; font-family: var(--font-display); }
-    .pricing-price span { font-size: 1rem; font-weight: 500; color: var(--muted-fg); }
-    .pricing-desc { color: var(--muted-fg); font-size: 0.9rem; margin-bottom: 1.5rem; }
-    .pricing-features { list-style: none; margin-bottom: 2rem; text-align: left; }
+    .pricing-price {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 900;
+      margin-bottom: 0.25rem;
+    }
+    .pricing-price span {
+      font-size: 1rem; color: var(--muted-fg);
+      font-weight: 500;
+    }
+    .pricing-desc {
+      color: var(--muted-fg); font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .pricing-features {
+      list-style: none; margin-bottom: 2rem;
+    }
     .pricing-features li {
-      padding: 0.5rem 0; font-size: 0.9rem; color: var(--fg);
+      padding: 0.6rem 0; font-size: 0.9rem;
       display: flex; align-items: center; gap: 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
     }
-    .pricing-features li::before { content: '>'; color: var(--primary); font-weight: 700; }
+    .pricing-features li:last-child { border: none; }
+    .pricing-features li .check {
+      width: 20px; height: 20px;
+      background: rgba(0,255,42,0.1);
+      border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center;
+      color: var(--primary); font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+    .pricing-card .btn-primary { width: 100%; justify-content: center; }
 
-    #spoofer-teaser {
-      background: rgba(0,255,42,0.02);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      text-align: center;
-    }
-
-    #faq { background: linear-gradient(180deg, var(--bg) 0%, rgba(255,255,255,0.02) 100%); }
-    .faq-list { max-width: 700px; margin: 0 auto; }
-    .faq-item {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 0.75rem;
-      overflow: hidden;
-    }
-    .faq-q {
-      padding: 1.25rem 1.5rem; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-      font-weight: 600; font-size: 0.95rem;
-      transition: background 0.2s; user-select: none;
-    }
-    .faq-q:hover { background: rgba(255,255,255,0.02); }
-    .faq-q .icon { width: 20px; height: 20px; transition: transform 0.3s; color: var(--muted-fg); }
-    .faq-item.open .faq-q .icon { transform: rotate(45deg); }
-    .faq-a {
-      padding: 0 1.5rem; max-height: 0; overflow: hidden;
-      transition: all 0.3s; color: var(--muted-fg); font-size: 0.9rem; line-height: 1.7;
-    }
-    .faq-item.open .faq-a { padding: 0 1.5rem 1.25rem; max-height: 300px; }
-
-    #cta {
-      background: rgba(0,255,42,0.02);
-      text-align: center;
-    }
-    #cta .section-container { padding: 5rem 1.5rem; }
-    #cta h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 1rem; }
-    #cta p { color: var(--muted-fg); max-width: 500px; margin: 0 auto 2rem; }
-
+    /* ─── FOOTER ─── */
     .footer {
-      border-top: 1px solid var(--border);
-      padding: 3rem 0; text-align: center; color: var(--muted-fg); font-size: 0.85rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 3rem 2rem; text-align: center;
+      position: relative; z-index: 2;
     }
-    .footer a { color: var(--muted-fg); text-decoration: none; transition: color 0.2s; }
-    .footer a:hover { color: var(--primary); }
-    .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .footer-inner {
+      max-width: 1300px; margin: 0 auto;
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-links { display: flex; gap: 2rem; }
+    .footer-links a {
+      color: var(--muted-fg); text-decoration: none;
+      font-size: 0.85rem; transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--primary); }
+    .footer-copy { color: var(--muted-fg); font-size: 0.8rem; }
 
+    /* ─── ANIMATIONS ─── */
+    .fade-up { opacity: 0; transform: translateY(40px); transition: all 0.7s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
       .nav-links { display: none; }
-      .hamburger { display: flex; }
-      .hero { padding-top: 5rem; min-height: auto; }
-      .hero-content { flex-direction: column; gap: 2rem; text-align: center; }
-      .hero-buttons { justify-content: center; }
-      .hero-stats { justify-content: center; gap: 1.5rem; }
+      .hero-inner { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
       .hero p { margin: 0 auto 2rem; }
-      .hero-stat .num { font-size: 1.4rem; }
+      .hero-btns { justify-content: center; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
       .pricing-card.featured { transform: none; }
-      .pricing-card.featured:hover { transform: translateY(-4px); }
-      .showcase-grid, .gui-grid { grid-template-columns: 1fr; }
-    }
-
-    .fade-in { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
-
-    .product-badge {
-      display: inline-block;
-      background: rgba(0,255,42,0.08);
-      border: 1px solid var(--border);
-      padding: 0.25rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.7rem; font-weight: 600; color: var(--primary);
-      margin-top: 0.5rem;
-      font-family: var(--font-display);
-      letter-spacing: 0.5px;
+      .games-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { flex-direction: column; text-align: center; }
+      .hero-side { display: none; }
+      .hero-crosshair { display: none; }
     }
   </style>
-<script>
-    (function(w){
-        var k="nudgify",n=w[k]||(w[k]={});
-        n.uuid="21ee8b38-b461-4f9b-b9b4-cd18554e0dee";
-        var d=document,s=d.createElement("script");
-        s.src="https://pixel.nudgify.com/pixel.js";
-        s.async=1;
-        s.charset="utf-8";
-        d.getElementsByTagName("head")[0].appendChild(s)
-    })(window)
-</script>
 </head>
 <body>
-  <div id="noise"></div>
-  <div id="glow"></div>
+
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor"></div>
+  <div id="cursor-trail"></div>
+
+  <!-- THREE.JS BG -->
+  <div id="three-bg"></div>
   <div id="scanline"></div>
 
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <a href="#" onclick="window.scrollTo(0,0);return false;" class="logo">
-        <svg class="logo-crosshair" width="36" height="36" viewBox="0 0 36 36">
-          <circle cx="18" cy="18" r="14" fill="none" stroke="var(--fg)" stroke-width="2"/>
-          <line x1="6" y1="18" x2="30" y2="18" stroke="var(--fg)" stroke-width="2"/>
-          <line x1="18" y1="6" x2="18" y2="30" stroke="var(--fg)" stroke-width="2"/>
-          <circle cx="18" cy="18" r="4" fill="var(--primary)"/>
-        </svg>
-        <span class="logo-wrap"><span class="logo-fuzzy">Fuzzy</span><span class="logo-aim">Aim</span></span>
+  <!-- SIDE DECORATIONS -->
+  <div class="hero-side left">
+    <div class="side-text">FUZZY</div>
+    <div class="side-line"></div>
+    <div class="side-dot"></div>
+  </div>
+  <div class="hero-side right">
+    <div class="side-text">AIM</div>
+    <div class="side-line"></div>
+    <div class="side-dot"></div>
+  </div>
+
+  <!-- CROSSHAIR DECORATIONS -->
+  <div class="hero-crosshair tl">
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#00ff2a" stroke-width="0.5" opacity="0.6"/>
+      <circle class="ring" cx="60" cy="60" r="20" fill="none" stroke="#00ffff" stroke-width="0.3" opacity="0.4"/>
+      <line x1="60" y1="10" x2="60" y2="40" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="60" y1="80" x2="60" y2="110" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="10" y1="60" x2="40" y2="60" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="80" y1="60" x2="110" y2="60" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="60" cy="60" r="2" fill="#00ff2a" opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="hero-crosshair br">
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#00ffff" stroke-width="0.5" opacity="0.6"/>
+      <circle class="ring" cx="60" cy="60" r="20" fill="none" stroke="#00ff2a" stroke-width="0.3" opacity="0.4"/>
+      <line x1="60" y1="10" x2="60" y2="40" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <line x1="60" y1="80" x2="60" y2="110" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <line x1="10" y1="60" x2="40" y2="60" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <line x1="80" y1="60" x2="110" y2="60" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="60" cy="60" r="2" fill="#00ffff" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40">
+            <circle class="outer-ring" cx="20" cy="20" r="17" fill="none" stroke="#00ff2a" stroke-width="2" opacity="0.4"/>
+            <circle cx="20" cy="20" r="10" fill="none" stroke="#00ffff" stroke-width="1.5" opacity="0.3"/>
+            <circle class="center-dot" cx="20" cy="20" r="4" fill="#00ff2a"/>
+            <line x1="20" y1="3" x2="20" y2="10" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+            <line x1="20" y1="30" x2="20" y2="37" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+            <line x1="3" y1="20" x2="10" y2="20" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+            <line x1="30" y1="20" x2="37" y2="20" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Fuzzy</span>Aim</div>
       </a>
       <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#guis">Interfaces</a></li>
-        <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-        <li><a href="#requirements">Requirements</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="#pricing" class="nav-btn" style="padding:0.5rem 1.25rem;border-radius:4px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:0.9rem;text-decoration:none;display:inline-block">Get Access</a></li>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Games</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#" class="nav-cta">Get Access</a></li>
       </ul>
-      <div class="hamburger" id="hamburger">
-        <span></span><span></span><span></span>
-      </div>
     </div>
   </nav>
 
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#features" class="mobile-link">Features</a>
-    <a href="#guis" class="mobile-link">Interfaces</a>
-    <a href="#how-it-works" class="mobile-link">How It Works</a>
-    <a href="#pricing" class="mobile-link">Pricing</a>
-    <a href="#requirements" class="mobile-link">Requirements</a>
-    <a href="#faq" class="mobile-link">FAQ</a>
-    <a href="#pricing" class="nav-btn" style="padding:0.5rem 1.25rem;border-radius:4px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:1.1rem;text-decoration:none;display:inline-block">Get Access</a>
-  </div>
-
+  <!-- HERO -->
   <section class="hero">
-    <div class="hero-content">
-      <div class="hero-left">
-        <div class="hero-badge"><div class="dot"></div> AI Aimbot for BO7, Warzone & More</div>
-        <h1>AI-Powered<br><span class="gradient">Controller Aimbot</span></h1>
-        <p>Real-time computer vision aimbot for controller players. YOLO-powered detection with TensorRT acceleration. No injection, no drivers — just pixel-perfect AI targeting.</p>
-        <div class="hero-buttons">
-          <a href="#pricing" class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag"><span class="live-dot"></span> v3.0 — Now Available</div>
+        <h1>
+          AI-Powered<br>
+          <span class="gradient">Controller Aimbot</span><br>
+          <span class="outline">Dominate Every Match</span>
+        </h1>
+        <p>Real-time YOLO-powered computer vision aimbot for controller players. No injection, no drivers — just pixel-perfect AI targeting with TensorRT acceleration.</p>
+        <div class="hero-btns">
+          <a href="#" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             View Pricing
           </a>
-          <a href="#how-it-works" class="btn-secondary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            How It Works
+          <a href="#" class="btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" x2="12" y1="18" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Documentation
           </a>
         </div>
-        <div class="hero-stats">
-          <div class="hero-stat"><div class="num" data-count="99.9">0%</div><div class="label">Uptime</div></div>
-          <div class="hero-stat"><div class="num" data-count="2000" data-suffix="+">0</div><div class="label">Users</div></div>
-          <div class="hero-stat"><div class="num" data-count="247">24/7</div><div class="label">Support</div></div>
-          <div class="hero-stat"><div class="num" data-count="1">Daily</div><div class="label">Updates</div></div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card-3d" id="heroCard">
+          <div class="ch-ring ch-ring-1"></div>
+          <div class="ch-ring ch-ring-2"></div>
+          <div class="ch-ring ch-ring-3"></div>
+          <div class="ch-ring ch-ring-4"></div>
+          <div class="ch-line ch-line-h"></div>
+          <div class="ch-line ch-line-v"></div>
+          <div class="ch-tick ch-tick-tl"></div>
+          <div class="ch-tick ch-tick-tr"></div>
+          <div class="ch-tick ch-tick-bl"></div>
+          <div class="ch-tick ch-tick-br"></div>
+          <div class="card-content">
+            <div class="card-badge">FuzzyAim 3.0</div>
+            <div class="card-title">AI Aimbot Engine</div>
+            <div class="card-sub">YOLOv8 · TensorRT · DirectML · ViGEmBus</div>
+            <div class="card-stats">
+              <div class="card-stat"><div class="card-stat-num">99.9%</div><div class="card-stat-label">Uptime</div></div>
+              <div class="card-stat"><div class="card-stat-num">2K+</div><div class="card-stat-label">Users</div></div>
+              <div class="card-stat"><div class="card-stat-num">24/7</div><div class="card-stat-label">Support</div></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="hero-right">
-        <img src="main-product.png" alt="FuzzyAim Product Preview">
-      </div>
     </div>
-    <div class="scroll-indicator">
+    <div class="hero-scroll">
       <span>Scroll</span>
-      <div class="arrow"></div>
+      <div class="line"></div>
     </div>
   </section>
 
-  <section id="features">
+  <!-- GAMES -->
+  <section>
     <div class="section-container">
-      <div class="fade-in">
-        <div class="section-label">Features</div>
-        <h2 class="section-title">Built for Controller Dominance</h2>
-        <p class="section-sub">FuzzyAim is a pure AI aimbot for controller players. No wallhacks, no ESP — just intelligent computer vision targeting that feels natural.</p>
+      <div class="fade-up">
+        <div class="section-tag"><span class="line"></span>Supported Titles</div>
+        <h2 class="section-title">Optimized for <span style="background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Competitive Play</span></h2>
+        <p class="section-sub">FuzzyAim works with any game that supports controller input. These titles are fully optimized with game-specific profiles.</p>
       </div>
-      <div class="features-grid">
-        <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></div>
+      <div class="games-grid fade-up">
+        <div class="game-tile">
+          <div class="game-status"></div>
+          <div class="game-icon">⚔️</div>
+          <div class="game-name">Black Ops 7</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-status"></div>
+          <div class="game-icon">🎯</div>
+          <div class="game-name">Warzone</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-status"></div>
+          <div class="game-icon">🏆</div>
+          <div class="game-name">Apex Legends</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-status"></div>
+          <div class="game-icon">🔫</div>
+          <div class="game-name">Valorant</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-status"></div>
+          <div class="game-icon">🏝️</div>
+          <div class="game-name">Fortnite</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-status"></div>
+          <div class="game-icon">🎖️</div>
+          <div class="game-name">MWIII</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section>
+    <div class="section-container">
+      <div class="fade-up">
+        <div class="section-tag"><span class="line"></span>Core Features</div>
+        <h2 class="section-title">Built for <span style="background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Controller Dominance</span></h2>
+        <p class="section-sub">Pure AI aimbot for controller players — no wallhacks, no ESP, just intelligent computer vision targeting that feels natural.</p>
+      </div>
+      <div class="features-grid fade-up">
+        <div class="glow-card feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+          </div>
           <h3>AI Aimbot Engine</h3>
-          <p>YOLOv8-based computer vision detection with ONNX runtime. Supports DirectML and TensorRT acceleration for maximum performance on any GPU.</p>
+          <p>YOLOv8-based detection with ONNX runtime. DirectML and TensorRT acceleration for maximum performance on any GPU.</p>
         </div>
-        <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-          <h3>StickTrackerX Script</h3>
-          <p>Advanced aim tracking script with configurable FOV, smoothness, prediction, and deadzone control. Perfect for sticky, human-like aim.</p>
+        <div class="glow-card feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <h3>StickTrackerX</h3>
+          <p>Advanced aim tracking with configurable FOV, smoothness, prediction, and deadzone control for human-like aim.</p>
         </div>
-        <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div class="glow-card feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
           <h3>StickyAxis Engine</h3>
-          <p>High-performance aim assist with PID-based smoothing, per-axis configuration, and advanced humanization curves. Feels native on any sensitivity.</p>
+          <p>PID-based smoothing with per-axis configuration, humanization curves, and native feel on any sensitivity.</p>
         </div>
-        <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
-          <h3>Anti-Recoil System</h3>
-          <p>Per-weapon recoil compensation with adjustable intensity. Works with any in-game sensitivity. Profiles save per game and weapon.</p>
+        <div class="glow-card feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3>Capture System</h3>
+          <p>Flexible screen capture via mss, DXCAM, or capture card. Multi-monitor support and custom crop regions.</p>
         </div>
-        <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <div class="glow-card feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
           <h3>Triggerbot</h3>
-          <p>Auto-fire when crosshair aligns with target. Configurable delay, hitbox size, and activation modes (ADS only, always on, hip fire).</p>
+          <p>Auto-fire with configurable delay, hitbox size, and activation modes. ADS-only, always-on, or hip fire.</p>
         </div>
-        <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-          <h3>Capture Monitor Stream</h3>
-          <p>Flexible screen capture via mss, DXCAM, or capture card. Multi-monitor support, custom cropping, and center-crop modes for any setup.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="guis">
-    <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">Interfaces</div>
-        <h2 class="section-title">Three Interfaces, One Tool</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">FuzzyAim is built around three core interfaces that work together seamlessly.</p>
-      </div>
-      <div class="gui-grid">
-        <div class="gui-card fade-in">
-          <div class="mockup">
-            <img src="gui_main.png" alt="Main Launcher GUI" style="width:100%;height:100%;object-fit:fill;">
+        <div class="glow-card feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
-          <h3>Main Launcher GUI</h3>
-          <p>Dark-themed tkinter launcher with custom title bar, console output panel, and one-click script startup. Manages settings profiles, script selection, and capture configuration.</p>
-          <ul class="gui-features">
-            <li>Script selection & auto-run</li>
-            <li>Settings profiles manager</li>
-            <li>Live console output with colored logs</li>
-            <li>Capture source configuration</li>
-          </ul>
+          <h3>Anti-Recoil</h3>
+          <p>Per-weapon recoil compensation with adjustable intensity. Profile saves per game and weapon.</p>
         </div>
-        <div class="gui-card fade-in">
-          <div class="mockup">
-            <img src="gui_script.png" alt="Script Settings GUI" style="width:100%;height:100%;object-fit:fill;">
-          </div>
-          <h3>Script Settings GUI</h3>
-          <p>Each script (StickTrackerX, StickyAxis) has its own settings panel with real-time slider controls for FOV, smoothness, deadzone, PID values, and activation modes.</p>
-          <ul class="gui-features">
-            <li>Real-time slider adjustments</li>
-            <li>PID tuning: Kp, Ki, Kd values</li>
-            <li>Per-axis deadzone configuration</li>
-            <li>ADS / hip fire / always-on modes</li>
-          </ul>
-        </div>
-        <div class="gui-card fade-in">
-          <div class="mockup">
-            <img src="gui_capture.png" alt="Capture Monitor Window" style="width:100%;height:100%;object-fit:fill;">
-          </div>
-          <h3>Capture Monitor Window</h3>
-          <p>Dedicated capture preview window showing exactly what the AI sees. Supports multi-monitor selection, custom crop regions, center-crop mode, and capture card input.</p>
-          <ul class="gui-features">
-            <li>Live capture preview overlay</li>
-            <li>Multi-monitor & capture card support</li>
-            <li>Exact crop & center-crop modes</li>
-            <li>Stream protection via display affinity</li>
-          </ul>
-        </div>
+      </div>
+
+      <div class="stats-bar fade-up">
+        <div class="stat-item"><div class="num">99.9%</div><div class="label">Uptime</div></div>
+        <div class="stat-item"><div class="num">2K+</div><div class="label">Active Users</div></div>
+        <div class="stat-item"><div class="num">24/7</div><div class="label">Support</div></div>
+        <div class="stat-item"><div class="num">Daily</div><div class="label">Updates</div></div>
       </div>
     </div>
   </section>
 
-  <section id="how-it-works">
+  <!-- PRICING -->
+  <section>
     <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">How It Works</div>
-        <h2 class="section-title">Pixel to Aim in Milliseconds</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">FuzzyAim uses computer vision to detect enemies through your screen — no game memory access, no injection.</p>
+      <div class="fade-up" style="text-align:center">
+        <div class="section-tag" style="justify-content:center"><span class="line"></span>Pricing</div>
+        <h2 class="section-title">Choose Your <span style="background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Plan</span></h2>
+        <p class="section-sub" style="margin:0 auto 0">All plans include full access to the AI aimbot engine, all scripts, anti-recoil, triggerbot, and capture system.</p>
       </div>
-      <div class="steps-grid">
-        <div class="step-card fade-in">
-          <div class="step-number">1</div>
-          <h3>Capture Frame</h3>
-          <p>The capture system grabs your screen or capture card feed using mss, DXCAM, or DirectX. Configurable crop regions focus on the area of interest.</p>
-        </div>
-        <div class="step-card fade-in">
-          <div class="step-number">2</div>
-          <h3>AI Detection</h3>
-          <p>Each frame is passed through a YOLOv8 ONNX model. TensorRT or DirectML accelerates inference on your GPU. Detects player positions in real time.</p>
-        </div>
-        <div class="step-card fade-in">
-          <div class="step-number">3</div>
-          <h3>Smooth Aim</h3>
-          <p>Detected targets are processed through a PID controller with configurable Kp/Ki/Kd, deadzone, and prediction. The aim movement feels natural and human-like.</p>
-        </div>
-        <div class="step-card fade-in">
-          <div class="step-number">4</div>
-          <h3>Controller Output</h3>
-          <p>Virtual controller via ViGEmBus emulates an Xbox 360 or DS4 controller. The game sees only native controller input — no keyboard/mouse injection.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="safety">
-    <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">Safety</div>
-        <h2 class="section-title">Built to Stay Under the Radar</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">FuzzyAim is designed from the ground up for account safety. No detection vectors, no driver-level hooks.</p>
-      </div>
-      <div class="safety-grid">
-        <div class="safety-card fade-in">
-          <h3><span class="check">✓</span> No Injection</h3>
-          <p>FuzzyAim never injects code into game processes. It reads screen pixels via DirectX/mss and outputs controller signals through ViGEmBus. No memory access, no DLL injection, no driver loading.</p>
-        </div>
-        <div class="safety-card fade-in">
-          <h3><span class="check">✓</span> No Kernel Drivers</h3>
-          <p>No unsigned drivers, no BYOVD, no kernel-mode components. Works with Secure Boot enabled. Anti-cheats cannot flag us through driver blacklists.</p>
-        </div>
-        <div class="safety-card fade-in">
-          <h3><span class="check">✓</span> Stream Protection</h3>
-          <p>SetWindowDisplayAffinity (WDA_EXCLUDEFROMCAPTURE) hides the FuzzyAim window from OBS, Discord streaming, and screen capture software.</p>
-        </div>
-        <div class="safety-card fade-in">
-          <h3><span class="check">✓</span> Process Obfuscation</h3>
-          <p>PyArmor bytecode encryption protects the core logic. Compiled .pyd binaries prevent reverse engineering. License bypass system keeps it self-contained.</p>
-        </div>
-        <div class="safety-card fade-in">
-          <h3><span class="check">✓</span> Regular Updates</h3>
-          <p>Daily signature updates ensure compatibility with the latest anti-cheat patches. Our models are retrained regularly to maintain detection accuracy.</p>
-        </div>
-        <div class="safety-card fade-in">
-          <h3><span class="check">✓</span> Humanized Aim</h3>
-          <p>PID smoothing with configurable curves, random deadzone, and per-axis settings make the aim look indistinguishable from a skilled controller player.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="showcase">
-    <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">Supported Games</div>
-        <h2 class="section-title">Optimized for Controller Play</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">FuzzyAim works with any game that supports controller input. These titles have optimized profiles.</p>
-      </div>
-      <div class="showcase-grid">
-        <div class="showcase-card fade-in">
-          <h3>Call of Duty<br>Black Ops 7</h3>
-          <p>Full StickTrackerX and StickyAxis profiles. PID-tuned aim assist, anti-recoil, and triggerbot. Our most tested title.</p>
-          <div class="showcase-tag">Optimized</div>
-        </div>
-        <div class="showcase-card fade-in">
-          <h3>Call of Duty<br>Warzone</h3>
-          <p>Battle-royale optimized with distance-based aim prediction. Custom FOV scaling for long-range engagements.</p>
-          <div class="showcase-tag">Optimized</div>
-        </div>
-        <div class="showcase-card fade-in">
-          <h3>Call of Duty<br>Modern Warfare III</h3>
-          <p>Multiplayer and Zombies support with per-mode profiles. Adjustable aim intensity for fast-paced MP vs slow PvE.</p>
-          <div class="showcase-tag">Supported</div>
-        </div>
-        <div class="showcase-card fade-in">
-          <h3>Apex Legends</h3>
-          <p>Movement-aware tracking with configurable target leading. High-speed combat profiles with aggressive smoothing.</p>
-          <div class="showcase-tag">Supported</div>
-        </div>
-        <div class="showcase-card fade-in">
-          <h3>Valorant</h3>
-          <p>Precision profiles for tactical gameplay. Lower smoothing for flick-based aiming. Triggerbot optimized for sheriff/guardian.</p>
-          <div class="showcase-tag">Supported</div>
-        </div>
-        <div class="showcase-card fade-in">
-          <h3>Fortnite</h3>
-          <p>Building-aware aimbot with adjustable target prioritization. Works in build mode and zero-build mode.</p>
-          <div class="showcase-tag">Supported</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="spoofer-teaser">
-    <div class="section-container" style="padding: 3rem 1.5rem">
-      <div class="fade-in">
-        <div class="section-label">Coming Soon</div>
-        <h2 class="section-title" style="margin-bottom: 0.5rem">FuzzyAim HWID Spoofer</h2>
-        <p style="color: #94949e; max-width: 600px; margin: 0 auto 1rem">A separate product with firmware-level SMBIOS changes, TPM bypass, disk/GPU/CPU spoofing, and auto-restore — for users who need hardware ban protection alongside their aimbot.</p>
-        <div class="product-badge">Perma Spoofer</div>
-        <div class="product-badge" style="margin-left: 0.5rem">Temp Spoofer</div>
-      </div>
-    </div>
-  </section>
-
-  <section id="pricing">
-    <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">Pricing</div>
-        <h2 class="section-title">Choose Your Plan</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">All plans include full access to the AI aimbot engine, all scripts, anti-recoil, triggerbot, and capture system.</p>
-      </div>
-      <div style="text-align:center; margin-bottom: 2rem;">
-        <span style="display:inline-block; background: rgba(0,255,42,0.15); color: #00ff2a; border: 1px solid rgba(0,255,42,0.3); padding: 0.5rem 1.2rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600;">Try 3 Days Free — No Risk</span>
-      </div>
-      <div class="pricing-grid">
-        <div class="pricing-card fade-in">
+      <div class="pricing-grid fade-up">
+        <div class="glow-card pricing-card">
           <div class="pricing-name">Weekly</div>
-          <div class="pricing-price">$10 <span>/week</span></div>
+          <div class="pricing-price">$10 <span>/wk</span></div>
           <p class="pricing-desc">Perfect for testing or short sessions.</p>
           <ul class="pricing-features">
-            <li>AI Aimbot Engine</li>
-            <li>StickTrackerX Script</li>
-            <li>StickyAxis Script</li>
-            <li>Anti-Recoil System</li>
-            <li>Triggerbot</li>
-            <li>Capture Monitor Stream</li>
-            <li>24/7 Support</li>
+            <li><span class="check">✓</span> AI Aimbot Engine</li>
+            <li><span class="check">✓</span> StickTrackerX Script</li>
+            <li><span class="check">✓</span> StickyAxis Script</li>
+            <li><span class="check">✓</span> Anti-Recoil System</li>
+            <li><span class="check">✓</span> Triggerbot</li>
+            <li><span class="check">✓</span> 24/7 Support</li>
           </ul>
-          <a href="https://fuzzyaim.mysellauth.com/checkout/044bddda40ff4-0000012899254" target="_blank" class="btn-primary" style="width:100%;justify-content:center">$10 / week</a>
+          <a href="#" class="btn-primary">Get Weekly</a>
         </div>
-        <div class="pricing-card fade-in">
+        <div class="glow-card pricing-card featured">
           <div class="pricing-name">Monthly</div>
-          <div class="pricing-price">$20 <span>/month</span></div>
+          <div class="pricing-price">$20 <span>/mo</span></div>
           <p class="pricing-desc">Solid choice for ongoing play.</p>
           <ul class="pricing-features">
-            <li>AI Aimbot Engine</li>
-            <li>StickTrackerX Script</li>
-            <li>StickyAxis Script</li>
-            <li>Anti-Recoil System</li>
-            <li>Triggerbot</li>
-            <li>Capture Monitor Stream</li>
-            <li>Priority Support</li>
-            <li>Early Feature Access</li>
-            <li>Game-Specific Profiles</li>
+            <li><span class="check">✓</span> AI Aimbot Engine</li>
+            <li><span class="check">✓</span> StickTrackerX Script</li>
+            <li><span class="check">✓</span> StickyAxis Script</li>
+            <li><span class="check">✓</span> Anti-Recoil System</li>
+            <li><span class="check">✓</span> Triggerbot</li>
+            <li><span class="check">✓</span> Priority Support</li>
+            <li><span class="check">✓</span> Early Feature Access</li>
+            <li><span class="check">✓</span> Game Profiles</li>
           </ul>
-          <a href="https://fuzzyaim.mysellauth.com/checkout/64242d8e18b94-0000012899267" target="_blank" class="btn-primary" style="width:100%;justify-content:center">$20 / month</a>
+          <a href="#" class="btn-primary">Get Monthly</a>
         </div>
-        <div class="pricing-card featured fade-in">
-          <div class="popular">Recommended</div>
+        <div class="glow-card pricing-card">
           <div class="pricing-name">Lifetime</div>
-          <div class="pricing-price">$60 <span>one time pay</span></div>
-          <p class="pricing-desc">Limited time offer — price will increase soon.</p>
+          <div class="pricing-price">$60</div>
+          <p class="pricing-desc">One-time payment, lifetime access.</p>
           <ul class="pricing-features">
-            <li>AI Aimbot Engine</li>
-            <li>StickTrackerX Script</li>
-            <li>StickyAxis Script</li>
-            <li>Anti-Recoil System</li>
-            <li>Triggerbot</li>
-            <li>Capture Monitor Stream</li>
-            <li>VIP Support</li>
-            <li>Early Feature Access</li>
-            <li>Game-Specific Profiles</li>
-            <li>Lifetime Updates</li>
-            <li>Private Discord Role</li>
+            <li><span class="check">✓</span> AI Aimbot Engine</li>
+            <li><span class="check">✓</span> StickTrackerX Script</li>
+            <li><span class="check">✓</span> StickyAxis Script</li>
+            <li><span class="check">✓</span> Anti-Recoil System</li>
+            <li><span class="check">✓</span> Triggerbot</li>
+            <li><span class="check">✓</span> VIP Support</li>
+            <li><span class="check">✓</span> Lifetime Updates</li>
+            <li><span class="check">✓</span> Private Discord Role</li>
           </ul>
-          <a href="https://fuzzyaim.mysellauth.com/checkout/99700f1c0117c-0000012899273" target="_blank" class="btn-primary" style="width:100%;justify-content:center">$60 Lifetime</a>
+          <a href="#" class="btn-primary">Get Lifetime</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="requirements" style="padding: 5rem 0; background: rgba(10,14,23,0.5);">
-    <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">SYSTEM REQUIREMENTS</div>
-        <h2 class="section-title">Minimum Recommended Setup</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">What you need to run FuzzyAim smoothly.</p>
-      </div>
-      <div class="fade-in" style="max-width: 700px; margin: 0 auto; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 2rem 2.5rem;">
-        <div style="display:grid; gap:1.5rem;">
-          <div>
-            <div style="color:#00ff2a; font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">GPU</div>
-            <div style="color:#e6e6e6;">NVIDIA RTX 3050 or higher (or AMD equivalent).<br><span style="color:#94949e; font-size:0.9rem;">* It may work on lower-end cards. We recommend using our 3-day free trial to test your system, but a 3050+ is required for optimal tracking results.</span></div>
-          </div>
-          <div>
-            <div style="color:#00ff2a; font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">CPU</div>
-            <div style="color:#e6e6e6;">Intel Core i7 or AMD Ryzen 7 (or higher).</div>
-          </div>
-          <div>
-            <div style="color:#00ff2a; font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">RAM</div>
-            <div style="color:#e6e6e6;">16 GB minimum.</div>
-          </div>
-          <div>
-            <div style="color:#00ff2a; font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Storage</div>
-            <div style="color:#e6e6e6;">~40 GB free space (HDD/SSD).</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="faq">
-    <div class="section-container">
-      <div class="fade-in" style="text-align:center">
-        <div class="section-label">FAQ</div>
-        <h2 class="section-title">Frequently Asked Questions</h2>
-        <p class="section-sub" style="margin: 0 auto 3rem">Everything you need to know about FuzzyAim.</p>
-      </div>
-      <div class="faq-list">
-        <div class="faq-item fade-in">
-          <div class="faq-q">Is FuzzyAim detected? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">FuzzyAim uses a no-injection approach — it reads screen pixels via DirectX and outputs controller signals through ViGEmBus. There is no game memory access, no DLL injection, and no kernel drivers. Regular signature updates keep it safe. However, no cheat is 100% risk-free — use responsibly.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">How does it compare to traditional aimbots? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">Traditional aimbots read game memory to find entity positions — this is easily detected. FuzzyAim uses computer vision (YOLOv8) on screen pixels, just like a human looking at the monitor. Combined with PID-smoothed controller output, it's significantly harder to detect because nothing touches the game process.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">What games are supported? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">Currently optimized for Call of Duty: Black Ops 7, Warzone, MWIII, Apex Legends, Valorant, and Fortnite. Since FuzzyAim works through screen capture and controller emulation, it works with any game that supports controller input. More titles are added regularly.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">Do I need a capture card? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">No. FuzzyAim works with standard screen capture (mss or DXCAM). A capture card is optional and only needed if you're using a console or want lower CPU overhead by offloading capture to dedicated hardware.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">What hardware do I need? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">Windows 10/11 PC with a dedicated GPU. NVIDIA GPUs benefit from TensorRT acceleration; AMD GPUs use DirectML. The AI model runs efficiently on most mid-range and above GPUs. A controller (Xbox or DS4) is required.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">Do you have a HWID spoofer? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">The HWID spoofer is a separate product (Perma Spoofer and Temp Spoofer) coming soon. It features firmware-level SMBIOS changes via AMIDEWIN, TPM bypass, disk/GPU/CPU spoofing, and auto-restore on reboot. Perfect for pairing with FuzzyAim for complete protection.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">How do I get support? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">24/7 support is available through our Discord server. Monthly and Lifetime subscribers get priority/VIP support with faster response times.</div>
-        </div>
-        <div class="faq-item fade-in">
-          <div class="faq-q">Can I get a refund? <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="faq-a">We offer a 24-hour refund policy for any issues that cannot be resolved by our support team. Lifetime purchases are eligible for a 7-day refund window.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="cta">
-    <div class="section-container">
-      <div class="fade-in">
-        <div class="section-label">Get Started</div>
-        <h2>Ready to Dominate?</h2>
-        <p>Join thousands of competitive players using FuzzyAim. Start with a weekly plan or go lifetime and never look back.</p>
-        <div class="hero-buttons" style="justify-content:center">
-          <a href="https://fuzzyaim.mysellauth.com/checkout/64242d8e18b94-0000012899267" target="_blank" class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            Buy Now
-          </a>
-          <a href="https://fuzzyaim.mysellauth.com/checkout/99700f1c0117c-0000012899273" target="_blank" class="btn-secondary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Get Lifetime
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="terms" style="display:none">
-    <div class="section-container" style="padding: 5rem 1.5rem; max-width: 800px;">
-      <div class="section-label">Terms of Service</div>
-      <h2 class="section-title" style="margin-bottom:2rem">Terms & Conditions</h2>
-      <div style="color:#94949e; font-size:0.9rem; line-height:1.8">
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">1. Acceptance of Terms</strong><br>By purchasing, downloading, or using FuzzyAim ("the Software"), you agree to be bound by these Terms and Conditions. If you do not agree, do not purchase or use the Software.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">2. License Grant</strong><br>You are granted a revocable, non-transferable, non-exclusive, non-sublicensable, personal license to use the Software for lawful purposes only. This license is for one user per purchase. Sharing, reselling, or redistributing access constitutes a material breach.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">3. Intellectual Property</strong><br>The Software, including all code, models, branding, and assets, is the exclusive intellectual property of FuzzyAim. You acquire no ownership rights. Any reproduction, modification, or derivative work is strictly prohibited.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">4. Prohibited Conduct</strong><br>You agree NOT to: (a) redistribute, resell, lease, or share your license; (b) decompile, disassemble, or reverse engineer the Software; (c) bypass license verification; (d) use the Software to violate any applicable laws or third-party terms; (e) harass, threaten, or defame FuzzyAim staff.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">5. Disclaimer of Warranties</strong><br>THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. FuzzyAim does not guarantee that the Software will be undetected, error-free, or uninterrupted. Use is entirely at your own risk.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">6. Limitation of Liability</strong><br>TO THE MAXIMUM EXTENT PERMITTED BY LAW, FUZZYAIM SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OR INABILITY TO USE THE SOFTWARE, INCLUDING ACCOUNT BANS, SUSPENSIONS, LOST PROFITS, OR DATA LOSS. YOU ASSUME ALL RISK.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">7. No Guarantee Against Bans</strong><br>FuzzyAim uses advanced no-injection techniques, but no cheat software is 100% undetectable. We explicitly do not guarantee that your accounts will not be banned or restricted. You use the Software knowing this risk.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">8. Refund Policy</strong><br>All sales are final. We offer a 24-hour refund window at our sole discretion for technical issues that cannot be resolved. Chargebacks will result in immediate permanent blacklisting and may be pursued legally.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">9. Chargeback & Payment Disputes</strong><br>Any chargeback, payment dispute, or forced refund will: (a) immediately terminate all licenses and access; (b) result in permanent blacklisting; (c) incur a $50 administrative fee; (d) allow us to pursue collection and legal costs.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">10. Termination</strong><br>We may terminate or suspend your access at any time, without notice, for any reason, including violation of these terms. No refunds will be issued for terminated accounts. Upon termination, your license is immediately revoked.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">11. Indemnification</strong><br>You agree to indemnify, defend, and hold harmless FuzzyAim, its owners, operators, and affiliates from any claims, damages, losses, or expenses arising from your use of the Software or violation of these terms.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">12. Age Requirement</strong><br>You must be 18 years or older to purchase or use FuzzyAim. By accepting these terms, you confirm you are of legal age.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">13. Entire Agreement</strong><br>These terms constitute the entire agreement between you and FuzzyAim and supersede any prior agreements.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">14. Changes to Terms</strong><br>We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">15. Governing Law</strong><br>These terms are governed by applicable law. Any disputes shall be resolved through binding arbitration. If any provision is found unenforceable, the remaining provisions remain in full effect.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">16. Contact</strong><br>For questions, contact us through our Discord server.</p>
-      </div>
-      <a href="#" onclick="showMain(); window.scrollTo(0,0); return false;" style="color:#00ff2a; text-decoration:none; font-weight:600; margin-top:2rem; display:inline-block;">← Back to Main Page</a>
-    </div>
-  </section>
-
-  <section id="privacy" style="display:none">
-    <div class="section-container" style="padding: 5rem 1.5rem; max-width: 800px;">
-      <div class="section-label">Privacy Policy</div>
-      <h2 class="section-title" style="margin-bottom:2rem">Privacy Policy</h2>
-      <div style="color:#94949e; font-size:0.9rem; line-height:1.8">
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">1. Information We Collect</strong><br>We collect only what is necessary to provide our service: Discord username/ID for authentication, payment transaction IDs (we do not store payment card details), and basic usage metrics for service improvement.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">2. How We Use Your Information</strong><br>Your information is used solely for account management, license verification, support, and service improvement. We do not sell, share, or distribute your personal data to third parties except as required by law.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">3. Data Security</strong><br>We implement reasonable security measures. However, no method of transmission or storage is 100% secure.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">4. Third-Party Services</strong><br>We use Discord and third-party payment processors which have their own privacy policies. We are not responsible for their practices.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">5. Policy Updates</strong><br>We may update this policy at any time. Continued use after changes constitutes acceptance.</p>
-        <p style="margin-bottom:1rem"><strong style="color:#e6e6e6">6. Contact</strong><br>For privacy concerns, reach us through our Discord server.</p>
-      </div>
-      <a href="#" onclick="showMain(); window.scrollTo(0,0); return false;" style="color:#00ff2a; text-decoration:none; font-weight:600; margin-top:2rem; display:inline-block;">← Back to Main Page</a>
-    </div>
-  </section>
-
+  <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-links">
-      <a href="#features">Features</a>
-      <a href="#guis">Interfaces</a>
-      <a href="#how-it-works">How It Works</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#requirements">Requirements</a>
-      <a href="#faq">FAQ</a>
-      <a href="#terms" onclick="showSection('terms'); return false;">Terms of Service</a>
-      <a href="#privacy" onclick="showSection('privacy'); return false;">Privacy Policy</a>
+    <div class="footer-inner">
+      <div class="logo">
+        <div class="logo-icon" style="width:28px;height:28px;">
+          <svg viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="17" fill="none" stroke="#00ff2a" stroke-width="2" opacity="0.4"/>
+            <circle cx="20" cy="20" r="4" fill="#00ff2a"/>
+          </svg>
+        </div>
+        <div class="logo-text" style="font-size:1.1rem;"><span>Fuzzy</span>Aim</div>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Discord</a>
+        <a href="#">Support</a>
+      </div>
+      <div class="footer-copy">&copy; 2026 FuzzyAim. All rights reserved.</div>
     </div>
-    <p>&copy; 2026 FuzzyAim. All rights reserved. | FuzzyAim is not affiliated with any game publisher.</p>
   </footer>
 
   <script>
-    window.addEventListener('scroll', () => {
-      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
-    });
+  // ─── THREE.JS 3D BACKGROUND ───
+  (function() {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    script.onload = () => {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      document.getElementById('three-bg').appendChild(renderer.domElement);
 
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobileMenu');
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('active');
-      mobileMenu.classList.toggle('open');
-    });
-    document.querySelectorAll('.mobile-link').forEach(l => {
-      l.addEventListener('click', () => {
-        hamburger.classList.remove('active');
-        mobileMenu.classList.remove('open');
+      // ─── STARFIELD (coming toward camera) ───
+      const starCount = 1200;
+      const starGeo = new THREE.BufferGeometry();
+
+      // Generate glow texture for stars
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.15, 'rgba(255,255,255,0.8)');
+      grad.addColorStop(0.4, 'rgba(255,255,255,0.3)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+      const starTexture = new THREE.CanvasTexture(canvas);
+
+      const starPos = new Float32Array(starCount * 3);
+      const starColors = new Float32Array(starCount * 3);
+      const starSizes = new Float32Array(starCount);
+      const starVel = [];
+
+      const themeColors = [
+        [1, 1, 1],       // white
+        [0, 1, 0.165],   // #00ff2a matrix green
+        [0, 1, 1],       // #00ffff cyan
+      ];
+
+      for (let i = 0; i < starCount; i++) {
+        const dist = 10 + Math.random() * 35;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        starPos[i*3] = Math.sin(phi) * Math.cos(theta) * dist;
+        starPos[i*3+1] = Math.sin(phi) * Math.sin(theta) * dist * 0.5;
+        starPos[i*3+2] = -dist;
+        const c = themeColors[i % 3];
+        starColors[i*3] = c[0];
+        starColors[i*3+1] = c[1];
+        starColors[i*3+2] = c[2];
+        starSizes[i] = 0.04 + Math.random() * 0.1;
+        starVel.push({ x: starPos[i*3] * 0.0012, y: starPos[i*3+1] * 0.0012, z: 0.004 + Math.random() * 0.01 });
+      }
+
+      starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+      starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+      starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+
+      const starMat = new THREE.PointsMaterial({
+        size: 0.08, map: starTexture, vertexColors: true, transparent: true,
+        opacity: 0.9, sizeAttenuation: true, blending: THREE.AdditiveBlending,
+        depthWrite: false,
       });
-    });
+      const stars = new THREE.Points(starGeo, starMat);
+      scene.add(stars);
 
-    document.querySelectorAll('.faq-q').forEach(q => {
-      q.addEventListener('click', () => {
-        const item = q.parentElement;
-        const wasOpen = item.classList.contains('open');
-        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-        if (!wasOpen) item.classList.add('open');
+      // ─── NEBULA RINGS ───
+      function makeRing(r, c, o) {
+        const geo = new THREE.RingGeometry(r*0.7, r, 32);
+        const mat = new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: o, side: THREE.DoubleSide, depthWrite: false });
+        return new THREE.Mesh(geo, mat);
+      }
+      scene.add(makeRing(8, 0x00ff2a, 0.025).translate(-2, 2, -10));
+      scene.add(makeRing(10, 0x00ffff, 0.015).translate(3, -1, -12));
+
+      camera.position.set(0, 0, 6);
+      camera.lookAt(0, 0, 0);
+
+      // ─── MOUSE ───
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
       });
-    });
 
-    const counterObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const el = entry.target;
-          const target = parseFloat(el.dataset.count);
-          const suffix = el.dataset.suffix || '';
-          if (isNaN(target)) return;
-          const duration = 2000;
-          const start = performance.now();
-          const isFloat = target % 1 !== 0;
-          function update(now) {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = eased * target;
-            el.textContent = (isFloat ? current.toFixed(1) : Math.floor(current)) + suffix;
-            if (progress < 1) requestAnimationFrame(update);
+      // ─── ANIMATE ───
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Subtle camera drift with mouse
+        const cx = mouseX * 0.8;
+        const cy = mouseY * 0.5;
+        camera.position.x += (cx - camera.position.x) * 0.01;
+        camera.position.y += (cy - camera.position.y) * 0.01;
+        camera.lookAt(0, 0, 0);
+
+        // Move stars toward camera
+        const pos = stars.geometry.attributes.position.array;
+        for (let i = 0; i < starCount; i++) {
+          pos[i*3] += starVel[i].x;
+          pos[i*3+1] += starVel[i].y;
+          pos[i*3+2] += starVel[i].z;
+          // Reset stars that pass the camera
+          if (pos[i*3+2] > 5) {
+            const dist = 10 + Math.random() * 40;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            pos[i*3] = Math.sin(phi) * Math.cos(theta) * dist;
+            pos[i*3+1] = Math.sin(phi) * Math.sin(theta) * dist * 0.5;
+            pos[i*3+2] = -dist;
+            starVel[i] = { x: pos[i*3] * 0.0012, y: pos[i*3+1] * 0.0012, z: 0.004 + Math.random() * 0.01 };
           }
-          requestAnimationFrame(update);
-          counterObserver.unobserve(el);
         }
-      });
-    }, { threshold: 0.5 });
-    document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+        stars.geometry.attributes.position.needsUpdate = true;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        renderer.render(scene, camera);
+      }
+      animate();
 
-    function showSection(id) {
-      document.querySelectorAll('section').forEach(s => {
-        if (s.id === id || s.classList.contains('hero') || s.id === 'cta' || !s.id) {
-          s.style.display = '';
-        } else {
-          s.style.display = 'none';
-        }
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
       });
-      document.getElementById('navbar').style.display = 'none';
-      document.getElementById(id).style.display = '';
-      window.scrollTo(0, 0);
-    }
-    function showMain() {
-      document.querySelectorAll('section').forEach(s => {
-        s.style.display = '';
-      });
-      document.getElementById('navbar').style.display = '';
-      document.getElementById('terms').style.display = 'none';
-      document.getElementById('privacy').style.display = 'none';
-    }
-    window.addEventListener('hashchange', function() {
-      var id = window.location.hash.replace('#', '');
-      if (['terms','privacy'].indexOf(id) === -1) {
-        showMain();
+    };
+    document.head.appendChild(script);
+  })();
+
+  // ─── 3D Card Tilt ───
+  const card = document.getElementById('heroCard');
+  if (card) {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = (y - centerY) / centerY * -8;
+      const rotateY = (x - centerX) / centerX * 8;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+    });
+  }
+
+  // ─── Glow card cursor tracking ───
+  document.querySelectorAll('.glow-card').forEach(gc => {
+    gc.addEventListener('mousemove', (e) => {
+      const rect = gc.getBoundingClientRect();
+      gc.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+      gc.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+    });
+  });
+
+  // ─── CUSTOM CURSOR ───
+  const cursor = document.getElementById('cursor');
+  const trail = document.getElementById('cursor-trail');
+  let trailX = 0, trailY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    trailX += (e.clientX - trailX) * 0.15;
+    trailY += (e.clientY - trailY) * 0.15;
+    trail.style.left = trailX + 'px';
+    trail.style.top = trailY + 'px';
+  });
+
+  document.querySelectorAll('a, button, .game-tile, .glow-card, .btn-primary, .btn-secondary').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  // ─── Scroll Reveal ───
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
       }
     });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
   </script>
 </body>
 </html>
