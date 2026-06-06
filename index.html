@@ -613,7 +613,7 @@
   <!-- NAVBAR -->
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
-      <a href="#hero" class="logo">
+      <a href="javascript:void(0)" class="logo" id="logoTop">
         <div class="logo-icon">
           <svg viewBox="0 0 40 40">
             <circle class="outer-ring" cx="20" cy="20" r="17" fill="none" stroke="#00ff2a" stroke-width="2" opacity="0.4"/>
@@ -1137,7 +1137,7 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-inner">
-      <a href="#hero" class="logo">
+      <a href="javascript:void(0)" class="logo" id="logoFooter">
         <div class="logo-icon" style="width:32px;height:32px;">
           <svg viewBox="0 0 40 40">
             <circle class="outer-ring" cx="20" cy="20" r="17" fill="none" stroke="#00ff2a" stroke-width="2" opacity="0.4"/>
@@ -1324,6 +1324,10 @@
   document.querySelectorAll('a, button, .game-tile, .glow-card, .btn-primary, .btn-secondary, .hero-scroll, .hero-scroll span, .hero-scroll .line').forEach(el => {
     el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); cursorCross.classList.add('show'); });
     el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); cursorCross.classList.remove('show'); });
+  });
+
+  document.querySelectorAll('#logoTop, #logoFooter').forEach(el => {
+    el.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   });
 
   // ─── Navbar Scroll Shadow ───
