@@ -396,20 +396,40 @@
     .feature-card p { color: var(--muted-fg); font-size: 0.9rem; line-height: 1.7; }
 
     /* ─── COMPARISON TABLE ─── */
-    .compare-wrap { margin-top: 4rem; overflow-x: auto; }
-    .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
-    .compare-table th { font-family: var(--font-display); font-weight: 700; padding: 1rem 1.25rem; text-align: left; background: rgba(0,255,42,0.04); border-bottom: 1px solid rgba(0,255,42,0.1); font-size: 0.8rem; letter-spacing: 0.5px; }
-    .compare-table th:first-child { border-radius: 12px 0 0 0; }
-    .compare-table th:last-child { border-radius: 0 12px 0 0; text-align: center; }
-    .compare-table th:first-child, .compare-table td:first-child { color: var(--muted-fg); font-weight: 500; }
-    .compare-table th:last-child { color: var(--primary); }
-    .compare-table td { padding: 0.9rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
-    .compare-table td:last-child { text-align: center; color: var(--fg); }
-    .compare-table tr:last-child td:first-child { border-radius: 0 0 0 12px; }
-    .compare-table tr:last-child td:last-child { border-radius: 0 0 12px 0; }
-    .compare-table .check-yes { color: var(--primary); }
-    .compare-table .check-no { color: var(--muted); }
-    .compare-table tr:hover td { background: rgba(0,255,42,0.02); }
+    .compare-wrap { margin-top: 4rem; }
+    .compare-card {
+      background: transparent; border-radius: 16px; padding: 2rem;
+      position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.04);
+      max-width: 800px; margin: 0 auto;
+    }
+    .compare-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,255,42,0.15), transparent);
+    }
+    .compare-header {
+      display: grid; grid-template-columns: 1fr 1.2fr 1.2fr; gap: 0.5rem;
+      padding-bottom: 1rem; margin-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .compare-header span:first-child { color: var(--muted-fg); }
+    .compare-header span:nth-child(2) { color: var(--primary); text-align: center; }
+    .compare-header span:last-child { color: var(--muted-fg); text-align: center; }
+    .compare-row {
+      display: grid; grid-template-columns: 1fr 1.2fr 1.2fr; gap: 0.5rem;
+      padding: 0.85rem 0; border-bottom: 1px solid rgba(255,255,255,0.02);
+      align-items: center; transition: all 0.3s;
+      font-size: 0.85rem;
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row:hover { background: rgba(0,255,42,0.02); border-radius: 8px; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .compare-row .feature-name { color: var(--muted-fg); font-weight: 500; }
+    .compare-row .feature-fuzzy { color: var(--fg); text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+    .compare-row .feature-fuzzy .check { color: var(--primary); }
+    .compare-row .feature-trad { color: var(--muted-fg); text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+    .compare-row .feature-trad .xmark { color: #ff3355; opacity: 0.5; }
 
     /* ─── GUI GLOW ─── */
     .gui-card .mockup::before {
@@ -862,18 +882,38 @@
     </div>
     <div class="section-container fade-up" style="padding-top:0">
       <div class="compare-wrap">
-        <table class="compare-table">
-          <thead>
-            <tr><th>Feature</th><th>FuzzyAim AI</th><th>Traditional Software</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Detection Method</td><td>Advanced YOLOv8 Computer Vision</td><td>Simple Pixel / Color Scanning</td></tr>
-            <tr><td>Hardware Overhead</td><td>Near-Zero (TensorRT Accelerated)</td><td>High CPU / GPU Lag</td></tr>
-            <tr><td>Input Method</td><td>ViGEmBus Controller Simulation</td><td>Flagged Mouse-Moving Scripts</td></tr>
-            <tr><td>Targeting Precision</td><td>Dynamic PID Tuning Optimizer</td><td>Rigid, Robotic Tracking</td></tr>
-            <tr><td>System Security</td><td>Server-Side HWID Lock &amp; Verification</td><td>Vulnerable Local Files</td></tr>
-          </tbody>
-        </table>
+        <div class="compare-card glow-card">
+          <div class="compare-header">
+            <span>Feature</span>
+            <span>FuzzyAim AI</span>
+            <span>Traditional Software</span>
+          </div>
+          <div class="compare-row">
+            <span class="feature-name">Detection Method</span>
+            <span class="feature-fuzzy"><svg class="check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> YOLOv8 Computer Vision</span>
+            <span class="feature-trad"><svg class="xmark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Simple Pixel Scanning</span>
+          </div>
+          <div class="compare-row">
+            <span class="feature-name">Hardware Overhead</span>
+            <span class="feature-fuzzy"><svg class="check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Near-Zero (TensorRT)</span>
+            <span class="feature-trad"><svg class="xmark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> High CPU / GPU Lag</span>
+          </div>
+          <div class="compare-row">
+            <span class="feature-name">Input Method</span>
+            <span class="feature-fuzzy"><svg class="check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> ViGEmBus Controller Simulation</span>
+            <span class="feature-trad"><svg class="xmark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Flagged Mouse-Moving Scripts</span>
+          </div>
+          <div class="compare-row">
+            <span class="feature-name">Targeting Precision</span>
+            <span class="feature-fuzzy"><svg class="check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Dynamic PID Tuning</span>
+            <span class="feature-trad"><svg class="xmark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Rigid, Robotic Tracking</span>
+          </div>
+          <div class="compare-row">
+            <span class="feature-name">System Security</span>
+            <span class="feature-fuzzy"><svg class="check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Server-Side HWID Lock &amp; Verification</span>
+            <span class="feature-trad"><svg class="xmark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Vulnerable Local Files</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
