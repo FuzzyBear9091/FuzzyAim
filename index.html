@@ -166,12 +166,12 @@
     .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,42,0.3); }
     .nav-discord {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      background: transparent; color: var(--muted-fg) !important; padding: 0.5rem 0.8rem !important;
+      background: rgba(88,101,242,0.08); color: #8b9aff !important; padding: 0.5rem 0.8rem !important;
       border-radius: 6px; font-weight: 600 !important; font-size: 0.85rem !important;
-      border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s;
+      border: 1px solid rgba(88,101,242,0.2); transition: all 0.3s;
     }
     .nav-discord svg { width: 16px; height: 16px; flex-shrink: 0; }
-    .nav-discord:hover { border-color: #5865F2; color: #5865F2 !important; box-shadow: 0 0 20px rgba(88,101,242,0.15); }
+    .nav-discord:hover { border-color: #5865F2; color: #fff !important; background: rgba(88,101,242,0.15); box-shadow: 0 0 20px rgba(88,101,242,0.2); }
     .nav-discord::before { display: none !important; }
 
     /* ─── HAMBURGER ─── */
@@ -246,14 +246,14 @@
     .btn-secondary:hover { border-color: var(--primary); background: rgba(0,255,42,0.05); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,255,42,0.1); }
     .btn-discord {
       display: inline-flex; align-items: center; gap: 0.6rem;
-      background: transparent; border: 1px solid rgba(255,255,255,0.08);
-      color: var(--muted-fg); padding: 0.7rem 2rem; border-radius: 8px;
+      background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3);
+      color: #8b9aff; padding: 0.7rem 2rem; border-radius: 8px;
       font-family: var(--font-display); font-size: 0.8rem; font-weight: 600;
       text-decoration: none; cursor: pointer; letter-spacing: 0.05em;
       transition: all 0.3s ease;
     }
     .btn-discord svg { width: 18px; height: 18px; }
-    .btn-discord:hover { border-color: #5865F2; color: #5865F2; box-shadow: 0 0 30px rgba(88,101,242,0.15); transform: translateY(-2px); }
+    .btn-discord:hover { border-color: #5865F2; color: #fff; background: rgba(88,101,242,0.2); box-shadow: 0 0 30px rgba(88,101,242,0.25); transform: translateY(-2px); }
 
     /* ─── HERO RIGHT (CROSSHAIR CARD) ─── */
     .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
