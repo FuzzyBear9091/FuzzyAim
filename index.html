@@ -80,10 +80,6 @@
     }
     .hero-side.left { left: 1.5rem; }
     .hero-side.right { right: 1.5rem; }
-    .hero-side .side-crosshair { margin-bottom: 0.5rem; }
-    .hero-side .side-crosshair svg { width: 70px; height: 70px; display: block; }
-    .hero-side .side-crosshair .ring { animation: spin 20s linear infinite; transform-origin: center; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
     .hero-side .side-text {
       font-family: var(--font-display); font-size: 3.5rem; font-weight: 900;
       line-height: 0.9; letter-spacing: 0.15em;
@@ -97,6 +93,18 @@
     .hero-side .side-dot { width: 3px; height: 3px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
     .hero-side.left .side-dot { color: var(--primary); background: var(--primary); }
     .hero-side.right .side-dot { color: var(--secondary); background: var(--secondary); }
+
+    /* ─── CROSSHAIR DECORATION ─── */
+    .hero-crosshair {
+      position: fixed; z-index: 3; pointer-events: none;
+      opacity: 0.1;
+    }
+    .hero-crosshair svg { width: 100px; height: 100px; }
+    .hero-crosshair.tl { top: 8%; left: 5%; }
+    .hero-crosshair.br { bottom: 12%; right: 6%; transform: rotate(180deg); }
+    .hero-crosshair.br svg { width: 150px; height: 150px; }
+    .hero-crosshair .ring { animation: spin 20s linear infinite; transform-origin: center; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
     /* ─── NAVBAR ─── */
     .navbar {
@@ -464,7 +472,7 @@
       .games-grid { grid-template-columns: repeat(2, 1fr); }
       .footer-inner { flex-direction: column; text-align: center; }
       .hero-side { display: none; }
-      .hero-side .side-crosshair { display: none; }
+      .hero-crosshair { display: none; }
     }
   </style>
 </head>
@@ -480,17 +488,6 @@
 
   <!-- SIDE DECORATIONS -->
   <div class="hero-side left">
-    <div class="side-crosshair">
-      <svg viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="22" fill="none" stroke="#00ff2a" stroke-width="0.6" opacity="0.6"/>
-        <circle class="ring" cx="40" cy="40" r="14" fill="none" stroke="#00ffff" stroke-width="0.4" opacity="0.4"/>
-        <line x1="40" y1="6" x2="40" y2="28" stroke="#00ff2a" stroke-width="0.6" opacity="0.5"/>
-        <line x1="40" y1="52" x2="40" y2="74" stroke="#00ff2a" stroke-width="0.6" opacity="0.5"/>
-        <line x1="6" y1="40" x2="28" y2="40" stroke="#00ff2a" stroke-width="0.6" opacity="0.5"/>
-        <line x1="52" y1="40" x2="74" y2="40" stroke="#00ff2a" stroke-width="0.6" opacity="0.5"/>
-        <circle cx="40" cy="40" r="2" fill="#00ff2a" opacity="0.7"/>
-      </svg>
-    </div>
     <div class="side-text">FUZZY</div>
     <div class="side-line"></div>
     <div class="side-dot"></div>
@@ -499,17 +496,30 @@
     <div class="side-text">AIM</div>
     <div class="side-line"></div>
     <div class="side-dot"></div>
-    <div class="side-crosshair">
-      <svg viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="22" fill="none" stroke="#00ffff" stroke-width="0.6" opacity="0.6"/>
-        <circle class="ring" cx="40" cy="40" r="14" fill="none" stroke="#00ff2a" stroke-width="0.4" opacity="0.4"/>
-        <line x1="40" y1="6" x2="40" y2="28" stroke="#00ffff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="40" y1="52" x2="40" y2="74" stroke="#00ffff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="6" y1="40" x2="28" y2="40" stroke="#00ffff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="52" y1="40" x2="74" y2="40" stroke="#00ffff" stroke-width="0.6" opacity="0.5"/>
-        <circle cx="40" cy="40" r="2" fill="#00ffff" opacity="0.7"/>
-      </svg>
-    </div>
+  </div>
+
+  <!-- CROSSHAIR DECORATIONS -->
+  <div class="hero-crosshair tl">
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#00ff2a" stroke-width="0.5" opacity="0.6"/>
+      <circle class="ring" cx="60" cy="60" r="20" fill="none" stroke="#00ffff" stroke-width="0.3" opacity="0.4"/>
+      <line x1="60" y1="10" x2="60" y2="40" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="60" y1="80" x2="60" y2="110" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="10" y1="60" x2="40" y2="60" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="80" y1="60" x2="110" y2="60" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="60" cy="60" r="2" fill="#00ff2a" opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="hero-crosshair br">
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#00ffff" stroke-width="0.5" opacity="0.6"/>
+      <circle class="ring" cx="60" cy="60" r="20" fill="none" stroke="#00ff2a" stroke-width="0.3" opacity="0.4"/>
+      <line x1="60" y1="10" x2="60" y2="40" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <line x1="60" y1="80" x2="60" y2="110" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <line x1="10" y1="60" x2="40" y2="60" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <line x1="80" y1="60" x2="110" y2="60" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="60" cy="60" r="2" fill="#00ffff" opacity="0.6"/>
+    </svg>
   </div>
 
   <!-- MOBILE MENU -->
