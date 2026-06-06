@@ -117,14 +117,6 @@
     .hero-side.right .crosshair-under .ring { animation: spin 20s linear infinite; transform-origin: center; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* ─── CROSSHAIR DECORATION ─── */
-    .hero-crosshair {
-      position: fixed; z-index: 3; pointer-events: none;
-      opacity: 0.1;
-    }
-    .hero-crosshair svg { width: 100px; height: 100px; }
-    .hero-crosshair.tl { top: 8%; left: 5%; }
-
     /* ─── NAVBAR ─── */
     .navbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -642,7 +634,6 @@
       .footer-inner { flex-direction: column; text-align: center; }
       .footer-links { gap: 1rem; flex-wrap: wrap; justify-content: center; }
       .hero-side { display: none; }
-      .hero-crosshair { display: none; }
       .hero-scroll { display: none; }
       .status-indicator .status-text { display: none; }
     }
@@ -715,19 +706,6 @@
         <circle cx="40" cy="40" r="2" fill="#00ffff" opacity="0.6"/>
       </svg>
     </div>
-  </div>
-
-  <!-- CROSSHAIR DECORATIONS -->
-  <div class="hero-crosshair tl">
-    <svg viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="30" fill="none" stroke="#00ff2a" stroke-width="0.5" opacity="0.6"/>
-      <circle class="ring" cx="60" cy="60" r="20" fill="none" stroke="#00ffff" stroke-width="0.3" opacity="0.4"/>
-      <line x1="60" y1="10" x2="60" y2="40" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
-      <line x1="60" y1="80" x2="60" y2="110" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
-      <line x1="10" y1="60" x2="40" y2="60" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
-      <line x1="80" y1="60" x2="110" y2="60" stroke="#00ff2a" stroke-width="0.5" opacity="0.4"/>
-      <circle cx="60" cy="60" r="2" fill="#00ff2a" opacity="0.6"/>
-    </svg>
   </div>
 
   <!-- MOBILE MENU -->
