@@ -1006,15 +1006,20 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-inner">
-      <div class="logo">
-        <div class="logo-icon" style="width:28px;height:28px;">
+      <a href="#" class="logo">
+        <div class="logo-icon" style="width:32px;height:32px;">
           <svg viewBox="0 0 40 40">
-            <circle cx="20" cy="20" r="17" fill="none" stroke="#00ff2a" stroke-width="2" opacity="0.4"/>
-            <circle cx="20" cy="20" r="4" fill="#00ff2a"/>
+            <circle class="outer-ring" cx="20" cy="20" r="17" fill="none" stroke="#00ff2a" stroke-width="2" opacity="0.4"/>
+            <circle cx="20" cy="20" r="10" fill="none" stroke="#00ffff" stroke-width="1.5" opacity="0.3"/>
+            <circle class="center-dot" cx="20" cy="20" r="4" fill="#00ff2a"/>
+            <line x1="20" y1="3" x2="20" y2="10" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+            <line x1="20" y1="30" x2="20" y2="37" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+            <line x1="3" y1="20" x2="10" y2="20" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
+            <line x1="30" y1="20" x2="37" y2="20" stroke="#00ff2a" stroke-width="2" opacity="0.3"/>
           </svg>
         </div>
         <div class="logo-text" style="font-size:1.1rem;"><span>Fuzzy</span>Aim</div>
-      </div>
+      </a>
       <div class="footer-links">
         <a href="#features">Features</a>
         <a href="#interfaces">Interfaces</a>
