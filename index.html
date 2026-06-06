@@ -343,12 +343,12 @@
     .gui-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
     .gui-card { padding: 2rem; text-align: center; }
     .gui-card .mockup {
-      width: 100%; min-height: 400px; background: rgba(0,0,0,0.3);
+      width: 100%; height: 200px; background: rgba(0,0,0,0.3);
       border-radius: 12px; margin-bottom: 1.25rem;
       display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden; padding: 0.5rem;
+      position: relative; overflow: hidden;
     }
-    .gui-card .mockup img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+    .gui-card .mockup img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
     .gui-card h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
     .gui-card p { color: var(--muted-fg); font-size: 0.85rem; line-height: 1.6; }
     .gui-features { list-style: none; margin-top: 1rem; text-align: left; }
@@ -676,7 +676,7 @@
       </div>
       <div class="gui-grid fade-up">
         <div class="glow-card gui-card">
-          <div class="mockup"><img src="gui_main.png" alt="Main Launcher GUI"></div>
+          <div class="mockup"><img src="gui_main.webp" alt="Main Launcher GUI"></div>
           <h3>Main Launcher GUI</h3>
           <p>Dark-themed tkinter launcher with custom title bar, console output panel, and one-click script startup. Manages settings profiles, script selection, and capture configuration.</p>
           <ul class="gui-features">
@@ -687,7 +687,7 @@
           </ul>
         </div>
         <div class="glow-card gui-card">
-          <div class="mockup"><img src="gui_script.png" alt="Script Settings GUI"></div>
+          <div class="mockup"><img src="gui_script.webp" alt="Script Settings GUI"></div>
           <h3>Script Settings GUI</h3>
           <p>Each script (FuzzyTrackerAi, FuzzyAxis) has its own settings panel with real-time slider controls for FOV, smoothness, deadzone, PID values, and activation modes.</p>
           <ul class="gui-features">
@@ -698,7 +698,7 @@
           </ul>
         </div>
         <div class="glow-card gui-card">
-          <div class="mockup"><img src="gui_capture.png" alt="Capture Monitor Window"></div>
+          <div class="mockup"><img src="gui_capture.webp" alt="Capture Monitor Window"></div>
           <h3>Capture Monitor Window</h3>
           <p>Dedicated capture preview window showing exactly what the AI sees. Supports multi-monitor selection, custom crop regions, center-crop mode, and capture card input.</p>
           <ul class="gui-features">
