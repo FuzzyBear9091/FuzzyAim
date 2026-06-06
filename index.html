@@ -392,6 +392,15 @@
     .pricing-card.featured { background: rgba(0,255,42,0.02); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transform: scale(1.02); }
     .pricing-card.featured::before { background: linear-gradient(135deg, rgba(0,255,42,0.15), rgba(0,255,255,0.1), rgba(0,255,42,0.05)) !important; }
     .pricing-card.featured::before { opacity: 1 !important; }
+    .pricing-badge {
+      display: inline-block; margin-bottom: 0.75rem;
+      font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      padding: 0.3rem 0.75rem; border: 1px solid rgba(0,255,42,0.2);
+      border-radius: 50px;
+    }
     .pricing-name { font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 0.75rem; }
     .pricing-price { font-family: var(--font-display); font-size: 3rem; font-weight: 900; margin-bottom: 0.25rem; }
     .pricing-price span { font-size: 1rem; color: var(--muted-fg); font-weight: 500; }
@@ -852,7 +861,7 @@
           </ul>
           <a href="https://fuzzyaim.mysellauth.com/checkout/044bddda40ff4-0000012899254" target="_blank" class="btn-primary">Get Weekly</a>
         </div>
-        <div class="glow-card pricing-card featured">
+        <div class="glow-card pricing-card">
           <div class="pricing-name">Monthly</div>
           <div class="pricing-price">$20 <span>/mo</span></div>
           <p class="pricing-desc">Solid choice for ongoing play.</p>
@@ -868,7 +877,8 @@
           </ul>
           <a href="https://fuzzyaim.mysellauth.com/checkout/64242d8e18b94-0000012899267" target="_blank" class="btn-primary">Get Monthly</a>
         </div>
-        <div class="glow-card pricing-card">
+        <div class="glow-card pricing-card featured">
+          <div class="pricing-badge">Limited Time Offer — Price Increase Soon</div>
           <div class="pricing-name">Lifetime</div>
           <div class="pricing-price">$60</div>
           <p class="pricing-desc">One-time payment, lifetime access.</p>
