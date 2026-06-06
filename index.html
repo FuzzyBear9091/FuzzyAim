@@ -327,19 +327,19 @@
     .game-tile:hover .game-icon { opacity: 0.8; }
 
     /* ─── MW4 COMING SOON ─── */
-    .mw4-inline { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; cursor: pointer; transition: opacity 0.3s; }
+    .mw4-inline { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; cursor: pointer; transition: opacity 0.3s; }
     .mw4-inline:hover { opacity: 0.8; }
     .mw4-tag {
-      font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
+      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      border: 1px solid rgba(0,255,42,0.15); padding: 0.2rem 0.7rem; border-radius: 50px;
+      border: 1px solid rgba(0,255,42,0.15); padding: 0.3rem 1rem; border-radius: 50px;
     }
-    .mw4-title { font-family: var(--font-display); font-size: 0.9rem; font-weight: 400; color: var(--fg); white-space: nowrap; }
+    .mw4-title { font-family: var(--font-display); font-size: 2.8rem; font-weight: 400; color: var(--fg); }
     .mw4-title strong { font-weight: 900; }
-    .mw4-sub { color: var(--muted-fg); font-size: 0.75rem; }
-    .mw4-cta { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
+    .mw4-sub { color: var(--muted-fg); font-size: 1.2rem; width: 100%; text-align: center; }
+    .mw4-cta { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--primary); }
 
     /* ─── FEATURES ─── */
     .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-top: 3rem; }
@@ -494,8 +494,10 @@
       .stats-bar { grid-template-columns: repeat(2, 1fr); }
       .pricing-card.featured { transform: none; }
       .games-grid { grid-template-columns: repeat(2, 1fr); }
-      .mw4-title { font-size: 0.8rem; }
-      .mw4-sub { width: 100%; text-align: center; }
+      .mw4-title { font-size: 1.8rem; }
+      .mw4-sub { font-size: 0.9rem; }
+      .mw4-tag { font-size: 0.7rem; }
+      .mw4-cta { font-size: 0.9rem; }
       .footer-inner { flex-direction: column; text-align: center; }
       .hero-side { display: none; }
       .hero-crosshair { display: none; }
