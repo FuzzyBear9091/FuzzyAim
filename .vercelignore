@@ -1,4 +1,6 @@
-*
+/*
+!/images
+!/images/**
 !index.html
 !favicon.ico
 !gui_main.png
