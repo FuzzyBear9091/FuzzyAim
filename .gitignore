@@ -1,9 +1,9 @@
 *
 !/index.html
 !/favicon.ico
-!/gui_main.png
-!/gui_script.png
-!/gui_capture.png
+!/gui_main.jpg
+!/gui_script.jpg
+!/gui_capture.jpg
 !/.gitignore
 
 .vercel
